@@ -1,30 +1,32 @@
 <?php
-    session start();
-    header('Location:admin-registration.html');    
-$con= mysqli_connect('localhost', 'root');
-if($con){
-    echo "Connected Successfully"
-}
-else{
+session_start();
+
+$con = mysqli_connect('localhost', 'root', '', 'techTrend');
+
+if (!$con) {
     echo "No Connection";
+    exit; // Exit script if connection fails
 }
-mysqli_select_db($con, 'techTrend');
+
 $firstname = $_POST['first-name'];
 $lastname = $_POST['last-name'];
 $adminID = $_POST['admin-id'];
-$username = $_POST['username'];
-$password = $_POST['password'];
+$adminRole = $_POST['admin-role'];
 
-
-$quer = "Select * from Admin where username - '$username' && password - '$password'";
+$quer = "SELECT * FROM Admin WHERE `first-name` = '$firstname' AND `last-name` = '$lastname'";
 $result = mysqli_query($con, $quer);
 $num = mysqli_num_rows($result);
-if($num == 1){
+
+if ($num > 0) {
     echo "Duplicate Detected";
-}
-else{
-    $querr= "insert into Admin(first-name, last-name, admin-id, username, password) values('$firstname','$lastname','$adminID', '$username', '$password'";
-    mysqli_query($con, $querr);
+} else {
+    $query = "INSERT INTO Admin (`first-name`, `last-name`, `admin-id`, `admin-role`) VALUES (?, ?, ?, ?)";
+    $stmt = mysqli_prepare($con, $query);
+    mysqli_stmt_bind_param($stmt, "ssss", $firstname, $lastname, $adminID, $adminRole);
+    mysqli_stmt_execute($stmt);
+    echo "Record inserted successfully";
+    mysqli_stmt_close($stmt);
 }
 
+mysqli_close($con);
 ?>

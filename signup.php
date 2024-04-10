@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-$con = mysqli_connect('localhost', 'root', '', 'techTrend');
+$con = mysqli_connect('localhost', 'root', '', 'tech_trend');
 
 if (!$con) {
     echo "No Connection";

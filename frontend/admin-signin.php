@@ -21,7 +21,7 @@ $num = mysqli_num_rows($result);
 if ($num == 1) {
     $_SESSION['Admin_Username']= $username;
 
-    header('location:admin-portal.html');
+    header('location:admin-menu.php');
 } else {
     header("Location: admin-registration.html");
     

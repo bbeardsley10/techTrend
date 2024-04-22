@@ -1,14 +1,15 @@
 <?php
 session_start();
 
-$con = mysqli_connect('localhost', 'root', '', 'techtrend2');
+$con = mysqli_connect('localhost', 'root', '', 'techtrend');
 
 if (!$con) {
     echo "No Connection";
     exit; // Exit script if connection fails
 }
 
-$customerID = $_POST['Customer_ID'];
+$username = $_POST['Customer_Username'];
+$password = $_POST['Customer_Password'];
 $firstname = $_POST['First_Name'];
 $lastname = $_POST['Last_Name'];
 $city = $_POST['City'];
@@ -25,9 +26,9 @@ $num = mysqli_num_rows($result);
 if ($num > 0) {
     echo "Duplicate Detected";
 } else {
-    $query = "INSERT INTO Customer (Customer_ID, First_Name, Last_Name, City, State, Street_Address, Zip_Code, Customer_Email) VALUES (?, ?, ?,?,?,?,?,?)";
+    $query = "INSERT INTO Customer (Customer_Username, Customer_Password, First_Name, Last_Name, City, State, Street_Address, Zip_Code, Customer_Email) VALUES (?, ?, ?,?,?,?,?,?,? )";
     $stmt = mysqli_prepare($con, $query);
-    mysqli_stmt_bind_param($stmt, "ssssssss",$customerID, $firstname, $lastname, $city, $state, $street_address, $zip_code, $customer_email);
+    mysqli_stmt_bind_param($stmt, "sssssssss",$username,  $password, $firstname, $lastname, $city, $state, $street_address, $zip_code, $customer_email);
     mysqli_stmt_execute($stmt);
     echo "Account created successfully";
     mysqli_stmt_close($stmt);

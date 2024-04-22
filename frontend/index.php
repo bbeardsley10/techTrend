@@ -29,7 +29,7 @@
     </p>
     <!-- Footer content -->
     <p>
-        <a href="customer-registration.html">Customer Registration</a>
+        <a href="customer-portal.html">Customer Portal</a>
     </p>
     
 </body>

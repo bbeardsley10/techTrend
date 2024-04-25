@@ -1,3 +1,24 @@
+
+<?php 
+    session_start();
+
+    $con = mysqli_connect('localhost', 'root', '', 'techtrend');
+
+    if (isset($_SESSION['Customer_Username'])) {
+        $customerUsername = $_SESSION['Customer_Username'];
+
+        // Close the statement
+        $stmt->close();
+    } else {
+        // Redirect to the customer sign-in page if the user is not logged in
+        header("Location: customer-signin.php");
+        exit();
+    }
+
+?>
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,6 +31,9 @@
     <header>
         <h1>Welcome to TechTrend</h1>
     </header>
+    <div class="user-id user-data">
+        <p><?php echo $_SESSION['Customer_Username']; ?></p>
+    </div>
     <main>
         <!-- Link to product details page -->
         <a href="product1.php?product_id=1">View Product 1</a>

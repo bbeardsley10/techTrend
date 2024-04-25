@@ -1,6 +1,4 @@
 <?php
-
-// Start session
 session_start();
 
 $con = mysqli_connect('localhost', 'root', '', 'techtrend');
@@ -10,15 +8,14 @@ if (!$con) {
     exit; // Exit script if connection fails
 }
 
-
 // Check if the form has been submitted
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['product_id'])) {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['Product_ID'])) {
     // Get product ID from the form
-    $productId = $_POST['product_id'];
+    $productId = $_POST['Product_ID'];
 
     // Retrieve product details from the database
-    $query = "SELECT * FROM product WHERE Product_ID = $productId";
-    $result = mysqli_query($con, $query);
+    $query = "SELECT * FROM Product WHERE Product_ID = $productId";
+    $result = mysqli_query($conn, $query);
 
     if (mysqli_num_rows($result) > 0) {
         $product = mysqli_fetch_assoc($result);
@@ -56,10 +53,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['product_id'])) {
 }
 
 // Fixed product ID for the third product
-$productId = 1;
+$productId = 3;
 
 // Retrieve product details from the database
-$query = "SELECT * FROM product WHERE Product_ID = $productId";
+$query = "SELECT * FROM Product WHERE Product_ID = $productId";
 $result = mysqli_query($con, $query);
 
 if(mysqli_num_rows($result) > 0) {

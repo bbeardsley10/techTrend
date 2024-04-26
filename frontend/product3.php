@@ -1,9 +1,10 @@
 <?php
+//Include the database connection file
+include 'db_connection.php';
+// Start session
 session_start();
 
-$con = mysqli_connect('localhost', 'root', '', 'techtrend');
-
-if (!$con) {
+if (!$conn) {
     echo "No Connection";
     exit; // Exit script if connection fails
 }
@@ -14,7 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['Product_ID'])) {
     $productId = $_POST['Product_ID'];
 
     // Retrieve product details from the database
-    $query = "SELECT * FROM Product WHERE Product_ID = $productId";
+    $query = "SELECT * FROM product WHERE Product_ID = $productId";
     $result = mysqli_query($conn, $query);
 
     if (mysqli_num_rows($result) > 0) {
@@ -56,26 +57,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['Product_ID'])) {
 $productId = 3;
 
 // Retrieve product details from the database
-$query = "SELECT * FROM Product WHERE Product_ID = $productId";
-$result = mysqli_query($con, $query);
+$query = "SELECT * FROM product WHERE Product_ID = $productId";
+$result = mysqli_query($conn, $query);
 
 if(mysqli_num_rows($result) > 0) {
     $product = mysqli_fetch_assoc($result);
     // Display product details
 ?>
+
+
 <!DOCTYPE html>
 <html>
 <head>
-    <title><?php echo $product['Product_Name']; ?></title>
+    <title><?php echo htmlspecialchars($product['Product_Name']); ?></title>
     <link rel="icon" href="img/techTrendIcon.png" type="image/x-icon">
 </head>
 <body>
-    <h1><?php echo $product['Product_Name']; ?></h1>
-    <p>Price: $<?php echo $product['Product_Price']; ?></p>
+    <h1><?php echo htmlspecialchars($product['Product_Name']); ?></h1>
+    <p>Price: $<?php echo htmlspecialchars($product['Product_Price']); ?></p>
+    
+    
     <!-- Check availability and display form only if product is available -->
     <?php if ($product['Product_Status'] == "available"): ?>
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-            <input type="hidden" name="product_id" value="<?php echo $product['Product_ID']; ?>">
+        <form action="add_to_cart.php" method="post"> 
+            <input type="hidden" name="product_id" value="<?php echo htmlspecialchars($product['Product_ID']); ?>">
             <input type="submit" value="Add to Cart">
         </form>
     <?php else: ?>

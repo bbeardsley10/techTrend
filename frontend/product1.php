@@ -1,11 +1,11 @@
 <?php
 
+//Include the database connection file
+include 'db_connection.php';
 // Start session
 session_start();
 
-$con = mysqli_connect('localhost', 'root', '', 'techtrend');
-
-if (!$con) {
+if (!$conn) {
     echo "No Connection";
     exit; // Exit script if connection fails
 }
@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['product_id'])) {
 
     // Retrieve product details from the database
     $query = "SELECT * FROM product WHERE Product_ID = $productId";
-    $result = mysqli_query($con, $query);
+    $result = mysqli_query($conn, $query);
 
     if (mysqli_num_rows($result) > 0) {
         $product = mysqli_fetch_assoc($result);
@@ -60,7 +60,7 @@ $productId = 1;
 
 // Retrieve product details from the database
 $query = "SELECT * FROM product WHERE Product_ID = $productId";
-$result = mysqli_query($con, $query);
+$result = mysqli_query($conn, $query);
 
 if(mysqli_num_rows($result) > 0) {
     $product = mysqli_fetch_assoc($result);

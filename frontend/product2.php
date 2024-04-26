@@ -1,9 +1,11 @@
 <?php
+//Include the database connection file
+include 'db_connection.php';
+// Start session
 session_start();
 
-$con = mysqli_connect('localhost', 'root', '', 'techtrend');
 
-if (!$con) {
+if (!$conn) {
     echo "No Connection";
     exit; // Exit script if connection fails
 }

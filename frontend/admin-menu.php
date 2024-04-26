@@ -1,15 +1,17 @@
 
 <?php 
-    session_start();
+    //Include the database connection file
+include 'db_connection.php';
+// Start session
+session_start();
 
-    $con = mysqli_connect('localhost', 'root', '', 'techtrend');
 
     if (isset($_SESSION['Admin_Username'])) {
         $adminUsername = $_SESSION['Admin_Username'];
     
         // Prepare and execute the query to fetch the admin role
         $query = "SELECT Admin_Role FROM Admin WHERE Admin_Username = ?";
-        $stmt = $con->prepare($query);
+        $stmt = $conn->prepare($query);
         
         // Bind the parameter
         $stmt->bind_param("s", $adminUsername);

@@ -1,9 +1,11 @@
 <?php
+//Include the database connection file
+include 'db_connection.php';
+// Start session
 session_start();
 
-$con = mysqli_connect('localhost', 'root', '', 'techtrend');
 
-if (!$con) {
+if (!$conn) {
     echo "No Connection";
     exit; // Exit script if connection fails
 }
@@ -15,7 +17,7 @@ $lastname = $_POST['Last_Name'];
 $adminRole = $_POST['Admin_Role'];
 
 $quer = "SELECT * FROM admin WHERE `Admin_Username` = '$username' AND `Admin_Password` = '$password'";
-$result = mysqli_query($con, $quer);
+$result = mysqli_query($conn, $quer);
 $num = mysqli_num_rows($result);
 
 if ($num == 1) {
@@ -23,7 +25,7 @@ if ($num == 1) {
 
     header('location:admin-menu.php');
 } else {
-    header("Location: admin-registration.html");
+    header("Location: admin-registration.php");
     
 
 }

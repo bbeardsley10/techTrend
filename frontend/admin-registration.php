@@ -49,7 +49,11 @@
 
                     <?php 
 
-                    session_start();
+                    
+                        include 'db_connection.php';
+                        // Start session
+                        session_start();
+
                     if (isset($_SESSION['registration_error'])){
                         echo "<div class='user-id alert alert-danger'>" . $_SESSION['registration_error'] . "</div>";
                         unset($_SESSION['registration_error']);

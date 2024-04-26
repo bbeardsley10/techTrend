@@ -1,8 +1,9 @@
 
 <?php 
-    session_start();
-
-    $con = mysqli_connect('localhost', 'root', '', 'techtrend');
+  //Include the database connection file
+include 'db_connection.php';
+// Start session
+session_start();
 
     if (isset($_SESSION['Customer_Username'])) {
         $customerUsername = $_SESSION['Customer_Username'];

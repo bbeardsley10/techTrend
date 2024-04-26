@@ -1,9 +1,10 @@
 <?php
+//Include the database connection file
+include 'db_connection.php';
+// Start session
 session_start();
 
-$con = mysqli_connect('localhost', 'root', '', 'techtrend');
-
-if (!$con) {
+if (!$conn) {
     echo "No Connection";
     exit; // Exit script if connection fails
 }
@@ -20,7 +21,7 @@ $customer_email = $_POST['Customer_Email'];
 
 
 $quer = "SELECT * FROM Customer WHERE `Customer_Username` = '$username'";
-$result = mysqli_query($con, $quer);
+$result = mysqli_query($conn, $quer);
 $num = mysqli_num_rows($result);
 
 if ($num > 0) {
@@ -34,7 +35,7 @@ if ($num > 0) {
  
  // Check for duplicate email
 $email_query = "SELECT * FROM Customer WHERE Customer_Email = ?";
-$stmt = mysqli_prepare($con, $email_query);
+$stmt = mysqli_prepare($conn, $email_query);
 mysqli_stmt_bind_param($stmt, "s", $customer_email);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
@@ -50,7 +51,7 @@ if ($num > 0) {
 // If no duplicates are found insert the new account
 $insert_query = "INSERT INTO Customer (Customer_Username, Customer_Password, First_Name, Last_Name, Street_Address, City, State, Zip_Code, Customer_Email) 
                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-$stmt = mysqli_prepare($con, $insert_query);
+$stmt = mysqli_prepare($conn, $insert_query);
 mysqli_stmt_bind_param($stmt, "sssssssss", $username, $password, $firstname, $lastname, $street_address, $city, $state, $zip_code, $customer_email);
 mysqli_stmt_execute($stmt);
 
@@ -59,5 +60,5 @@ header("Location: customer-portal.html");
 exit; // Ensure the script stops after redirection
 
 mysqli_stmt_close($stmt);
-mysqli_close($con);
+mysqli_close($conn);
 ?>

@@ -15,7 +15,7 @@ if(isset($_GET['product_id'])) {
             unset($_SESSION['cart'][$productId]);
         }
         // Redirect back to the cart page
-        header("Location: cart.php");
+        header("Location: ../frontend/cart.php");
         exit();
     } else {
         echo "Product not found in the cart.";

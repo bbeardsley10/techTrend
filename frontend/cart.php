@@ -14,9 +14,15 @@ if (isset($_SESSION["cart"]) && !empty($_SESSION["cart"])) {
         $totalPrice += $product["price"] * $product["quantity"];
     }
     echo "<p>Total Price: $" . $totalPrice . "</p>";
+    
+    // Checkout button
+    echo "<form action='checkout.php' method='post'>";
+    echo "<input type='submit' value='Checkout'>";
+    echo "</form>";
 } else {
     echo "<p>Your cart is empty.</p>";
 }
 ?>
+
 <!-- Link to view home -->
 <a href="index.php">Home</a>

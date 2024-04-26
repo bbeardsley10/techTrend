@@ -1,92 +1,73 @@
-
 <?php 
-    //Include the database connection file
+// Include the database connection file
 include 'db_connection.php';
 // Start session
 session_start();
 
+// Ensure the user is logged in and has an admin role
+if (!isset($_SESSION['Admin_Username'])) {
+    header("Location: admin-signin.php");
+    exit();
+}
 
-    if (isset($_SESSION['Admin_Username'])) {
-        $adminUsername = $_SESSION['Admin_Username'];
-    
-        // Prepare and execute the query to fetch the admin role
-        $query = "SELECT Admin_Role FROM Admin WHERE Admin_Username = ?";
-        $stmt = $conn->prepare($query);
-        
-        // Bind the parameter
-        $stmt->bind_param("s", $adminUsername);
-        
-        // Execute the query
-        $stmt->execute();
-        
-        // Get the result
-        $stmt->store_result();
-        
-        if ($stmt->num_rows > 0) {
-            // Fetch the Admin_Role value
-            $stmt->bind_result($adminRole);
-            $stmt->fetch();
-            
-            // Store the role in the session
-            $_SESSION['Admin_Role'] = $adminRole;
-        } else {
-            echo "Role not found for user: " . htmlspecialchars($adminUsername);
-        }
-    
-        // Close the statement
-        $stmt->close();
-    } else {
-        // Redirect to the admin sign-in page if the user is not logged in
-        header("Location: admin-signin.php");
-        exit();
-    }
+// Fetch all products for the inventory table
+$query = "SELECT * FROM product";
+$result = $conn->query($query);
 
 ?>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>techTrend Admin Menu</title>
+    <title>Admin Inventory Management</title>
     <link rel="icon" href="img/techTrendIcon.png" type="image/x-icon">
     <link rel="stylesheet" href="admin-menu-style.css">
 </head>
 <body>
     <h1>Admin Inventory Management</h1>
     <div class="user-id user-data">
-        <p>Welcome <?php echo $_SESSION['Admin_Username']; ?> (<?php echo $_SESSION['Admin_Role']; ?>)!</p>
+        <p>Welcome <?php echo htmlspecialchars($_SESSION['Admin_Username']); ?>!</p>
     </div>
-    
-    <!-- Inventory List -->
-    <h2>Inventory</h2>
+
+    <a href="update_inventory.php">Add New Product</a>
+    <!-- Form to add a new product -->
+    <!--<h2>Add New Product</h2>
+    <form action="update_inventory.php" method="post"> 
+        <input type="hidden" name="action" value="add_product"> 
+        <label>Product Name: <input type="text" name="product_name" required></label>
+        <label>Product Price: <input type="number" step="0.01" name="product_price" required></label>
+        <label>Product Quantity: <input type="number" name="product_quantity" required></label>
+        <button type="submit">Add Product</button>
+    </form>
+            -->
+    <!-- Inventory list -->
+    <h2>Current Inventory</h2>
     <table>
         <tr>
             <th>Product Name</th>
             <th>Current Quantity</th>
-            <th>Action</th>
+            <th>Product Status</th>
+            <th>Actions</th>
         </tr>
-        <!-- Example row, replace with dynamic content -->
-        <tr>
-            <td>Product 1</td>
-            <td>100</td>
-            <td>
-                <!-- Form for adding/removing/editing quantity -->
-                <form action="update_inventory.php" method="post">
-                    <input type="hidden" name="product_id" value="1"> <!-- Use hidden input for product ID -->
-                    <input type="number" name="quantity" value="0" min="0" max="9999"> <!-- Input for quantity -->
-                    <button type="submit" name="action" value="add">Add</button>
-                    <button type="submit" name="action" value="remove">Remove</button>
-                    <button type="submit" name="action" value="edit">Edit</button>
-                </form>
-            </td>
-        </tr>
-        <!-- Add more rows dynamically based on inventory -->
+        <!-- Display current inventory -->
+        <?php while ($product = $result->fetch_assoc()): ?>
+            <tr>
+                <td><?php echo htmlspecialchars($product['Product_Name']); ?></td>
+                <td><?php echo htmlspecialchars($product['Product_Quantity']); ?></td>
+                <td><?php echo htmlspecialchars($product['Product_Status']); ?></td>
+                <td>
+                    <!-- Form for updating inventory -->
+                    <form action="update_inventory.php" method="post">
+                        <input type="hidden" name="product_id" value="<?php echo htmlspecialchars($product['Product_ID']); ?>">
+                        <input type="number" name="quantity" min="0" placeholder="New Quantity">
+                        <button type="submit" name="action" value="edit">Set Quantity</button>
+                        <button type="submit" name="action" value="remove">Remove</button>
+                    </form>
+                </td>
+            </tr>
+        <?php endwhile; ?>
     </table>
-    <div class="button logout">
-        <a href="admin-portal.html" class="btn btn-primary">Logout</a>
-    </div>
-    <!-- Add your JavaScript code here -->
-    <script>
-        // Add JavaScript for any interactive features
-    </script>
+
+    <a href="admin-portal.html">Logout</a>
 </body>
 </html>

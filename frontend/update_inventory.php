@@ -58,10 +58,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
               VALUES (?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($query);
     $status = 'available'; // Default status
-    $stmt->bind_param("isdii", $nextProductId, $productName, $productPrice, $productQuantity, $status);
+    $stmt->bind_param("isdis", $nextProductId, $productName, $productPrice, $productQuantity, $status);
     $stmt->execute();
     $stmt->close();
     error_log("Product Status: $status");
+    header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+
 }
 
 // Fetch all products for the inventory table
@@ -76,6 +78,18 @@ $result = $conn->query($query);
     <meta charset="UTF-8">
     <link rel="icon" href="img/techTrendIcon.png" type="image/x-icon">
     <title>Admin Inventory Management</title>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the form by its ID or select it another way
+        const form = document.querySelector('form'); 
+        form.addEventListener('submit', function() {
+            // Disable the submit button to prevent double submission
+            const submitButton = form.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+        });
+    });
+    </script>
 </head>
 <body>
     <h1>Inventory Management</h1>

@@ -1,3 +1,18 @@
+<?php
+session_start();
+include 'db_connection.php';
+
+
+if ($_SERVER['REQUEST_METHOD'] == "POST") {
+    $totalPrice = $_POST['totalPrice'];
+    
+} else {
+    exit();
+}
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,7 +30,7 @@
     <h1>Payment</h1>
     <form action="process_payment.php" method="post" onsubmit="return validateForm()">
         <!-- Payment Amount -->
-        <input type="hidden" name="paymentAmount" value="<?php echo $totalPrice; ?>">
+        <input type="hidden" name="totalPrice" value="<?php echo htmlspecialchars($totalPrice); ?>">
 
         <!-- Payment Type  -->
         <label>Payment Type:</label><br>

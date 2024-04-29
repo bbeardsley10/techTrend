@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $query = "INSERT INTO product (Product_ID, Product_Name, Product_Price, Product_Quantity, Product_Status) 
               VALUES (?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($query);
-    $status = 'available'; // Default status
+    $status = 'in stock'; // Default status
     $stmt->bind_param("isdis", $nextProductId, $productName, $productPrice, $productQuantity, $status);
     $stmt->execute();
     $stmt->close();

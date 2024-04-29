@@ -1,8 +1,10 @@
 <?php
-//Include the database connection file
-include 'db_connection.php';
 // Start session
 session_start();
+
+//Include the database connection file
+include 'db_connection.php';
+
 
 
 if (!$conn) {
@@ -12,9 +14,6 @@ if (!$conn) {
 
 $username = $_POST['Admin_Username'];
 $password = $_POST['Admin_Password'];
-$firstname = $_POST['First_Name'];
-$lastname = $_POST['Last_Name'];
-$adminRole = $_POST['Admin_Role'];
 
 $quer = "SELECT * FROM admin WHERE `Admin_Username` = '$username' AND `Admin_Password` = '$password'";
 $result = mysqli_query($conn, $quer);
@@ -24,9 +23,10 @@ if ($num == 1) {
     $_SESSION['Admin_Username']= $username;
 
     header('location:admin-menu.php');
+    exit;
 } else {
     header("Location: admin-registration.php");
-    
+    exit;
 
 }
 

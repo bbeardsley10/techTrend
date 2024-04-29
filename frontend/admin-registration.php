@@ -1,3 +1,11 @@
+<?php 
+
+session_start();                    
+include 'db_connection.php';
+   // Start session
+
+
+?>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -24,11 +32,11 @@
                 </div>
                 <div class="col-sm-5 col-xs-1 box2">
                     <div class="user-id user-data">
-                        <input type="text" name="Admin_Username" id="First_Name" required>
+                        <input type="text" name="Admin_Username" id="Admin_Username" required>
                         <label>Enter a Username</label>
                     </div>
                     <div class="user-id user-data">
-                        <input type="text" name="Admin_Password" id="First_Name" required>
+                        <input type="password" name="Admin_Password" id="Admin_Password" required>
                         <label>Enter a Password</label>
                     </div>
                     <div class="user-id user-data">
@@ -46,16 +54,9 @@
                     <div class="user-id button1">
                         <input type ="submit" name ="submitbutton" id="" value = "Create New Account"> 
                     </div>
-
-                    <?php 
-
-                    
-                        include 'db_connection.php';
-                        // Start session
-                        session_start();
-
+                    <?php
                     if (isset($_SESSION['registration_error'])){
-                        echo "<div class='user-id alert alert-danger'>" . $_SESSION['registration_error'] . "</div>";
+                        echo"<div class='user-id alert alert-danger'>" . $_SESSION['registration_error'] . "</div>";
                         unset($_SESSION['registration_error']);
                     }
                     ?>
@@ -65,3 +66,4 @@
     </form>
 </body>
 </html>
+

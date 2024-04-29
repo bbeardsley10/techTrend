@@ -44,7 +44,7 @@ $product = $result->fetch_assoc(); // Retrieve the product information
       
         
         <!-- Check if product is available -->
-        <?php if ($product['Product_Status'] === "available"): ?>
+        <?php if ($product['Product_Status'] === "in stock"): ?>
             <form action="add_to_cart.php" method="post">
                 <input type="hidden" name="Product_ID" value="<?php echo htmlspecialchars($product['Product_ID']); ?>">
                 <input type="submit" value="Add to Cart">
@@ -58,7 +58,9 @@ $product = $result->fetch_assoc(); // Retrieve the product information
         <p>
         <a href="cart.php">View Cart</a>
         </p>
+        <p>
         <a href="index.php">Back to Home</a> <!-- Link to go back to the main page -->
+        </p>
     </footer>
 </body>
 </html>

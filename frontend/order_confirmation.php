@@ -13,7 +13,7 @@ if (!isset($_SESSION['Customer_Username'])) {
 $customerUsername = $_SESSION['Customer_Username'];
 
 // Fetch customer information based on the session's username
-$query = "SELECT * FROM Customer WHERE Customer_Username = '$customerUsername'";
+$query = "SELECT * FROM customer WHERE Customer_Username = '$customerUsername'";
 $result = mysqli_query($conn, $query);
 
 if ($result) {
@@ -91,6 +91,6 @@ if ($result) {
     <?php endif; ?>
 
     <p>Thank you for shopping with us!</p>
-    <p><a href="index.php">Main Menu</a></p>
+    <p><a href="logout.php">Return to Main Menu</a></p>
 </body>
 </html>

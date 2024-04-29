@@ -8,7 +8,7 @@ if ($conn->connect_error) {
 ?>
 
 <?php
-$query = "SELECT Product_ID, Product_Name, Product_Price FROM product WHERE Product_Status = 'available'";
+$query = "SELECT Product_ID, Product_Name, Product_Price FROM product WHERE Product_Status = 'in stock'";
 $result = $conn->query($query);
 
 if ($result === false) {
@@ -36,7 +36,7 @@ if ($result === false) {
                     <a href="product.php?product_id=<?php echo htmlspecialchars($product['Product_ID']); ?>">
                         <?php echo htmlspecialchars($product['Product_Name']); ?>
                     </a>
-                    - $<?php echo htmlspecialchars($product['Product_Price']); ?>
+                     $<?php echo htmlspecialchars($product['Product_Price']); ?>
                 </li>
             <?php endwhile; ?>
             </ul>

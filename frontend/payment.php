@@ -113,4 +113,9 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     }
     </script>
 </body>
+<footer>
+    <p>
+        <a href="cart.php">Back to Cart</a>
+    </p>
+</footer>
 </html>

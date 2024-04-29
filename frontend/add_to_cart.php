@@ -31,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['Product_ID'])) {
             $product = $result->fetch_assoc();
 
             // Check if the product is available
-            if ($product['Product_Status'] == "available") {
+            if ($product['Product_Status'] == "in stock") {
                 // Initialize cart if not already set
                 if (!isset($_SESSION["cart"])) {
                     $_SESSION["cart"] = array();

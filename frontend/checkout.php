@@ -26,4 +26,9 @@
         <input type="submit" value="Proceed to Payment">
     </form>
 </body>
+<footer>
+    <p>
+        <a href="index.php">Back to Home</a> <!-- Link to go back to the main page -->
+        </p>
+</footer>
 </html>

@@ -28,7 +28,7 @@ $num = mysqli_num_rows($result);
 if ($num == 1) {
     $_SESSION['Customer_Username']= $username;
 
-    header('location:index2.php');
+    header('location: cart.php');
 } else {
     header("Location: customer-registration.php");
     

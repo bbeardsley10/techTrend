@@ -19,7 +19,7 @@ $result = $conn->query($query);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Inventory Management</title>
+    <title>Admin Menu</title>
     <link rel="icon" href="img/techTrendIcon.png" type="image/x-icon">
     <link rel="stylesheet" href="admin-menu-style.css">
 </head>
@@ -29,7 +29,7 @@ $result = $conn->query($query);
         <p>Welcome <?php echo htmlspecialchars($_SESSION['Admin_Username']); ?>!</p>
     </div>
 
-    <a href="update_inventory.php">Add New Product</a>
+    <a href="update_inventory.php">Edit Inventory</a>
     <!-- Form to add a new product -->
     <!--<h2>Add New Product</h2>
     <form action="update_inventory.php" method="post"> 
@@ -47,7 +47,6 @@ $result = $conn->query($query);
             <th>Product Name</th>
             <th>Current Quantity</th>
             <th>Product Status</th>
-            <th>Actions</th>
         </tr>
         <!-- Display current inventory -->
         <?php while ($product = $result->fetch_assoc()): ?>
@@ -55,15 +54,6 @@ $result = $conn->query($query);
                 <td><?php echo htmlspecialchars($product['Product_Name']); ?></td>
                 <td><?php echo htmlspecialchars($product['Product_Quantity']); ?></td>
                 <td><?php echo htmlspecialchars($product['Product_Status']); ?></td>
-                <td>
-                    <!-- Form for updating inventory -->
-                    <form action="update_inventory.php" method="post">
-                        <input type="hidden" name="product_id" value="<?php echo htmlspecialchars($product['Product_ID']); ?>">
-                        <input type="number" name="quantity" min="0" placeholder="New Quantity">
-                        <button type="submit" name="action" value="edit">Set Quantity</button>
-                        <button type="submit" name="action" value="remove">Remove</button>
-                    </form>
-                </td>
             </tr>
         <?php endwhile; ?>
     </table>

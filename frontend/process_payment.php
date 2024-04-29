@@ -1,8 +1,10 @@
 <?php
-//Include the database connection file
-include 'db_connection.php';
+
 // Start session
 session_start();
+//Include the database connection file
+include 'db_connection.php';
+
 
 
 if (!$conn) {
@@ -11,8 +13,10 @@ if (!$conn) {
 }
 // Check if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    
+    $totalPrice = $_POST['totalPrice'];
+    
     // Retrieve form data
-    $paymentAmount = $_POST['paymentAmount'];
     $paymentType = $_POST['paymentType'];
     $paymentDate = $_POST['paymentDate']; // No need to generate it again
 
@@ -24,41 +28,52 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Insert payment information into the database (Credit/Debit Card)
         $query = "INSERT INTO payment (Payment_Amount, Payment_Type, Payment_Date, Card_Number, Expiry_Month, Expiry_Year) 
-                  VALUES ('$paymentAmount', '$paymentType', '$paymentDate', '$cardNumber', '$expiryMonth', '$expiryYear')";
+                  VALUES ('$totalPrice', '$paymentType', '$paymentDate', '$cardNumber', '$expiryMonth', '$expiryYear')";
     } elseif ($paymentType === "Gift Card") {
         $giftCardNumber = $_POST['giftCardNumber'];
 
         // Insert payment information into the database (Gift Card)
         $query = "INSERT INTO payment (Payment_Amount, Payment_Type, Payment_Date, Card_Number) 
-                  VALUES ('$paymentAmount', '$paymentType', '$paymentDate', '$giftCardNumber')";
+                  VALUES ('$totalPrice', '$paymentType', '$paymentDate', '$giftCardNumber')";
     }
 
-    if (mysqli_query($con, $query)) {
-        // Payment information inserted successfully
-
-        // Retrieve the generated Payment_ID
+    if (mysqli_query($conn, $query)) {
         $paymentId = mysqli_insert_id($conn);
 
-        // Update the corresponding customer record with the actual Payment_ID
-        $customerId = $_SESSION['customer_id'];
-        $updateCustomerQuery = "UPDATE customer SET Payment_ID = '$paymentId' WHERE Customer_ID = '$customerId'";
-        
+        // Update the Customer record with the new Payment_ID
+        $customerUsername = $_SESSION['Customer_Username'];
+        $updateCustomerQuery = "UPDATE Customer SET Payment_ID = '$paymentId' WHERE Customer_Username = '$customerUsername'";
+
         if (mysqli_query($conn, $updateCustomerQuery)) {
-            // Customer record updated successfully
-            // Redirect to order confirmation page
+            // Update product inventory based on the items in the cart
+            if (isset($_SESSION["cart"]) && !empty($_SESSION["cart"])) {
+                foreach ($_SESSION["cart"] as $productId => $product) {
+                    $quantity = (int) $product["quantity"];
+
+                    // Update the product table to reduce the quantity
+                    $updateProductQuery = "UPDATE product SET Product_Quantity = Product_Quantity - $quantity WHERE Product_ID = '$productId'";
+
+                    if (!mysqli_query($conn, $updateProductQuery)) {
+                        echo "Error updating product inventory: " . mysqli_error($conn);
+                        exit();
+                    }
+                }
+            }
+
+            // Clear the cart from the session after successful inventory update
+            unset($_SESSION["cart"]);
+
+            // Redirect to the order confirmation page
             header("Location: order_confirmation.php");
             exit();
         } else {
-            // Error updating customer record
-            echo "Error: " . $updateCustomerQuery . "<br>" . mysqli_error($conn);
+            echo "Error updating customer record: " . mysqli_error($conn);
         }
     } else {
-        // Error inserting payment information
-        echo "Error: " . $query . "<br>" . mysqli_error($conn);
+        echo "Error inserting payment information: " . mysqli_error($conn);
     }
 } else {
-    // If the form is not submitted, redirect the user to the payment page
     header("Location: payment.php");
-    exit();
+    exit(); // If the form is not submitted, redirect to the payment page
 }
 ?>

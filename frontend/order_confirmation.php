@@ -1,55 +1,75 @@
 <?php
-// Start the session and connect to the database
+// Start the session
 session_start();
+// Connect to the database
 include 'db_connection.php';
 
-// Ensure the user is logged in
-if (!isset($_SESSION['Customer_Username'])) {
-    header("Location: login.php");
-    exit(); // Redirect to login page if no user is logged in
+if ($conn->connect_error) {
+    die("Database connection failed: " . $conn->connect_error);
 }
 
-// Get the logged-in customer's username
+// Ensure a user is logged in
+if (!isset($_SESSION['Customer_Username'])) {
+    header("Location: login.php");
+    exit(); // Redirect to login if no user is logged in
+}
+
+// Get the logged-in username
 $customerUsername = $_SESSION['Customer_Username'];
 
 // Fetch customer information based on the session's username
-$query = "SELECT * FROM customer WHERE Customer_Username = '$customerUsername'";
-$result = mysqli_query($conn, $query);
+$customerQuery = "SELECT * FROM customer WHERE Customer_Username = ?";
+$stmt = $conn->prepare($customerQuery);
+$stmt->bind_param("s", $customerUsername);
+$stmt->execute();
+$result = $stmt->get_result();
 
-if ($result) {
+if ($result && $result->num_rows > 0) {
     $customer = mysqli_fetch_assoc($result);
 
-    // Fetch customer details
-    $firstName = $customer['First_Name'];
-    $lastName = $customer['Last_Name'];
-    $city = $customer['City'];
-    $state = $customer['State'];
-    $streetAddress = $customer['Street_Address'];
-    $zipCode = $customer['Zip_Code'];
-    $email = $customer['Customer_Email'];
-    
-    // Fetch payment information if available
-    if (isset($customer['Payment_ID'])) {
-        $paymentId = $customer['Payment_ID'];
-        $paymentQuery = "SELECT * FROM payment WHERE Payment_ID = '$paymentId'";
-        $paymentResult = mysqli_query($conn, $paymentQuery);
+    // Get the customer details
+    $firstName = htmlspecialchars($customer['First_Name']);
+    $lastName = htmlspecialchars($customer['Last_Name']);
+    $city = htmlspecialchars($customer['City']);
+    $state = htmlspecialchars($customer['State']);
+    $streetAddress = htmlspecialchars($customer['Street_Address']);
+    $zipCode = htmlspecialchars($customer['Zip_Code']);
+    $email = htmlspecialchars($customer['Customer_Email']);
 
-        if ($paymentResult) {
+    // Get the payment information
+    if (isset($_SESSION['Payment_ID'])) {
+        $paymentId = $_SESSION['Payment_ID'];
+
+        // Use a prepared statement to fetch payment information
+        $paymentQuery = "SELECT * FROM payment WHERE Payment_ID = ?";
+        $stmt = $conn->prepare($paymentQuery);
+        $stmt->bind_param("i", $paymentId);
+        $stmt->execute();
+        $paymentResult = $stmt->get_result();
+
+        if ($paymentResult && $paymentResult->num_rows > 0) {
             $payment = mysqli_fetch_assoc($paymentResult);
 
-            // Payment details
-            $paymentAmount = $payment['Payment_Amount'];
-            $paymentType = $payment['Payment_Type'];
-            $paymentDate = $payment['Payment_Date'];
-            $cardNumber = $payment['Card_Number'] ?? '';
-            $expiryMonth = $payment['Expiry_Month'] ?? '';
-            $expiryYear = $payment['Expiry_Year'] ?? '';
+            // Get payment details
+            $paymentAmount = floatval($payment['Payment_Amount']); // Ensure valid float
+            $paymentType = htmlspecialchars($payment['Payment_Type']);
+            $paymentDate = htmlspecialchars($payment['Payment_Date']);
+            $cardNumber = htmlspecialchars($payment['Card_Number'] ?? '');
+            $expiryMonth = htmlspecialchars($payment['Expiry_Month'] ?? '');
+            $expiryYear = htmlspecialchars($payment['Expiry_Year'] ?? '');
             $expiryDate = ($expiryMonth && $expiryYear) ? "$expiryMonth/$expiryYear" : '';
-            $giftCardNumber = $payment['Card_Number'] ?? '';
+            $giftCardNumber = htmlspecialchars($payment['Card_Number'] ?? '');
+        } else {
+            echo "Error fetching payment information.";
+            exit();
         }
+    } else {
+        echo "No Payment_ID found for this customer.";
+        exit();
     }
 } else {
-    die("Error fetching customer information: " . mysqli_error($conn));
+    echo "Error fetching customer information.";
+    exit();
 }
 ?>
 

@@ -5,11 +5,9 @@ session_start();
 // Include the database connection file
 include 'db_connection.php';
 
-
-
 if (!$conn) {
     echo "No Connection";
-    exit; // Exit script if connection fails
+    exit; 
 }
 
 // Retrieve POST data from the form
@@ -32,13 +30,13 @@ $result = mysqli_stmt_get_result($stmt);
 $num = mysqli_num_rows($result);
 
 if ($num > 0) {
-    // Username already exists
+    // If the username already exists
     $_SESSION['registration_error'] = "The username is already taken!";
     header("Location: customer-registration.php");
     exit; // Redirect back with an error
 }
 
-// Check for duplicate emails
+// Checks whether or not the email is a duplicate
 $email_query = "SELECT * FROM customer WHERE Customer_Email = ?";
 $stmt = mysqli_prepare($conn, $email_query);
 mysqli_stmt_bind_param($stmt, "s", $customer_email);
@@ -50,10 +48,10 @@ if ($num > 0) {
     // Email is already linked to an account
     $_SESSION['registration_error'] = "That email is already linked to an account!";
     header("Location: customer-registration.php");
-    exit; // Redirect back with an error
+    exit; 
 }
 
-// Insert the new customer record
+// Insert the customer information into the customer table
 $insert_query = "INSERT INTO customer (Customer_Username, Customer_Password, First_Name, Last_Name, Street_Address, City, State, Zip_Code, Customer_Email) 
                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 $stmt = mysqli_prepare($conn, $insert_query);
@@ -61,7 +59,7 @@ mysqli_stmt_bind_param($stmt, "sssssssss", $username, $password, $firstname, $la
 mysqli_stmt_execute($stmt);
 
 if (mysqli_stmt_affected_rows($stmt) > 0) {
-    // If successful, get the auto-incremented Customer_ID
+    // Get the auto-incremented Customer_ID 
     $newCustomerID = mysqli_insert_id($conn);
 
     // Store the Customer_ID in the session for future reference
@@ -77,12 +75,12 @@ if (mysqli_stmt_affected_rows($stmt) > 0) {
     header("Location: customer-portal.html");
     exit;
 } else {
-    // Handle errors during the insert operation
+    // Error handler incase the insert into customer table operation fails
     $_SESSION['registration_error'] = "Error creating account: " . mysqli_error($conn);
     header("Location: customer-registration.php");
     exit;
 }
 
-// Close the statement and database connection
+
 mysqli_stmt_close($stmt);
 mysqli_close($conn);

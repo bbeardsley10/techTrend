@@ -6,7 +6,7 @@ session_start();
 
 if (!$conn) {
     echo "No Connection";
-    exit; // Exit script if connection fails
+    exit; 
 }
 
 $username = $_POST['Admin_Username'];
@@ -20,7 +20,7 @@ $result = mysqli_query($conn, $quer);
 $num = mysqli_num_rows($result);
 
 if ($num > 0) {
-    // Set session variable with error message
+    // Set session variable with error message if it detects a duplicate username
     $_SESSION['registration_error'] = "The username is already taken!";
     // Redirect back to the registration page
     header("Location: admin-registration.php");

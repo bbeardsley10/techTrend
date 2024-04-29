@@ -1,6 +1,8 @@
 <?php
 // Include database connection
-include 'db_connection.php'; // Check this file for proper connection details
+include 'db_connection.php'; 
+// Start session
+session_start();
 
 if ($conn->connect_error) {
     die("Database connection failed: " . $conn->connect_error);
@@ -28,6 +30,7 @@ if ($result === false) {
         <h1>Welcome to TechTrend</h1>
     </header>
     <main>
+        <!-- Diplays the current products that are 'in stock' -->
         <h2>Our Products</h2>
         <?php if ($result->num_rows > 0): ?>
             <ul>

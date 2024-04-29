@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['Product_ID'])) {
         exit();
     }
 
-    // Retrieve product details from the database
+    // Retrieves the product ID from the product database
     $query = "SELECT * FROM product WHERE Product_ID = ?";
     $stmt = $conn->prepare($query);
 
@@ -30,27 +30,53 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['Product_ID'])) {
         if ($result->num_rows > 0) {
             $product = $result->fetch_assoc();
 
-            // Check if the product is available
+            // Checks to see fi the product is currently in stock
             if ($product['Product_Status'] == "in stock") {
                 // Initialize cart if not already set
                 if (!isset($_SESSION["cart"])) {
                     $_SESSION["cart"] = array();
                 }
 
-                // Check if product is already in the cart
+                $cartId = session_id(); // Session ID is used as the Cart ID
+
+                // Checks if the product is in the cart already and if it is it gets auto incremented
                 if (isset($_SESSION["cart"][$productId])) {
-                    // Increment quantity
+                    // Increment quantity in the session cart
                     $_SESSION["cart"][$productId]["quantity"] += 1;
+
+                    // Update the quantity in the cart table
+                    $updateCartQuery = "UPDATE cart SET Quantity = ? WHERE Cart_ID = ? AND Product_ID = ?";
+                    $updateCartStmt = $conn->prepare($updateCartQuery);
+                    if ($updateCartStmt) {
+                        $newQuantity = $_SESSION["cart"][$productId]["quantity"];
+                        $updateCartStmt->bind_param("isi", $newQuantity, $cartId, $productId);
+                        $updateCartStmt->execute();
+                        $updateCartStmt->close();
+                    } else {
+                        echo "Failed to update cart: " . $conn->error;
+                    }
                 } else {
-                    // Add product to the cart with quantity 1
+                    // Add product to the session cart with quantity 1
                     $_SESSION["cart"][$productId] = array(
                         "name" => htmlspecialchars($product["Product_Name"]),
                         "price" => floatval($product["Product_Price"]),
                         "quantity" => 1
                     );
+
+                    // Insert a new record in the cart table whenever it gets added to the cart
+                    $insertCartQuery = "INSERT INTO cart (Cart_ID, Product_ID, Quantity) VALUES (?, ?, ?)";
+                    $insertCartStmt = $conn->prepare($insertCartQuery);
+                    if ($insertCartStmt) {
+                        $quantity = 1; // New item has initial quantity 1
+                        $insertCartStmt->bind_param("sii", $cartId, $productId, $quantity);
+                        $insertCartStmt->execute();
+                        $insertCartStmt->close();
+                    } else {
+                        echo "Failed to insert into cart: " . $conn->error;
+                    }
                 }
 
-                // Redirect to the referring page or default to index.php
+                // Redirects to index.php
                 $redirectUrl = $_SERVER['HTTP_REFERER'] ?? 'index.php';
                 header("Location: $redirectUrl");
                 exit();

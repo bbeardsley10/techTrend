@@ -18,14 +18,42 @@ if (isset($_GET['product_id'])) {
         exit();
     }
 
-    // Check if the product exists in the cart
+    // Get the current session cart ID
+    $cartId = session_id();
+
+    // Check if the product is in the session cart
     if (isset($_SESSION['cart'][$productId])) {
-        // If quantity is more than 1, decrease it by 1
         if ($_SESSION['cart'][$productId]['quantity'] > 1) {
+            // Decrement the quantity in the session
             $_SESSION['cart'][$productId]['quantity'] -= 1;
+
+            // Decrement the quantity in the database cart table
+            $updateCartQuery = "UPDATE cart SET Quantity = ? WHERE Cart_ID = ? AND Product_ID = ?";
+            $updateCartStmt = $conn->prepare($updateCartQuery);
+            if ($updateCartStmt) {
+                $newQuantity = $_SESSION['cart'][$productId]['quantity'];
+                $updateCartStmt->bind_param("isi", $newQuantity, $cartId, $productId);
+                $updateCartStmt->execute();
+                $updateCartStmt->close();
+            } else {
+                echo "Failed to update cart: " . $conn->error;
+                exit();
+            }
         } else {
-            // If quantity is 1 or less, remove the product from the cart
+            // Remove the product from the session
             unset($_SESSION['cart'][$productId]);
+
+            // Remove the product from the database cart table
+            $deleteCartQuery = "DELETE FROM cart WHERE Cart_ID = ? AND Product_ID = ?";
+            $deleteCartStmt = $conn->prepare($deleteCartQuery);
+            if ($deleteCartStmt) {
+                $deleteCartStmt->bind_param("si", $cartId, $productId);
+                $deleteCartStmt->execute();
+                $deleteCartStmt->close();
+            } else {
+                echo "Failed to remove from cart: " . $conn->error;
+                exit();
+            }
         }
 
         // Redirect back to the cart page
@@ -37,3 +65,4 @@ if (isset($_GET['product_id'])) {
 } else {
     echo "Invalid request. Product ID not provided.";
 }
+?>

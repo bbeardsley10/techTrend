@@ -1,8 +1,14 @@
 <?php
-include 'db_connection.php'; // Database connection
+// Connects to the database
+include 'db_connection.php'; 
+//start the session
 session_start();
 
-// Ensure the user is logged in and has an admin role
+if ($conn->connect_error) {
+    die("Database connection failed: " . $conn->connect_error);
+}
+
+// Makes sure the user is logged in and that the username is in the admin database
 if (!isset($_SESSION['Admin_Username'])) {
     header("Location: admin-signin.php");
     exit();
@@ -17,11 +23,11 @@ function get_next_product_id($conn) {
         $row = $result->fetch_assoc();
         return $row['max_id'] + 1;
     } else {
-        return 1; // Default value if there's no product
+        return 1; // Set the default value to 1 if it doesn't detect a product id
     }
 }
 
-// Function to edit or delete a product
+// Function to edit quantity or delete a product
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $productId = isset($_POST['product_id']) ? (int) $_POST['product_id'] : 0;
     $action = isset($_POST['action']) ? $_POST['action'] : '';
@@ -44,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Add a new product
+// Adding a new product
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add') {
     $productName = $_POST['product_name'];
     $productPrice = $_POST['product_price'];
@@ -53,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     // Get the next product ID
     $nextProductId = get_next_product_id($conn);
 
-    // Insert new product into the database
+    // Insert new product into the product table in the database
     $query = "INSERT INTO product (Product_ID, Product_Name, Product_Price, Product_Quantity, Product_Status) 
               VALUES (?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($query);
@@ -128,7 +134,7 @@ $result = $conn->query($query);
             </tr>
         <?php endwhile; ?>
     </table>
-    
+    <!-- Return to the main menu -->
     <a href="admin-menu.php">Return to Menu</a>
     <!-- Logout option -->
     <a href="admin-portal.html">Logout</a>

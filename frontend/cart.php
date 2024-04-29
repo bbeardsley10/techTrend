@@ -1,6 +1,12 @@
 <?php
-session_start(); // Start the session
-include 'db_connection.php'; // Include the database connection
+
+// Include the database connection
+include 'db_connection.php'; 
+
+
+// Start the session
+session_start(); 
+
 
 // Check if the database connection is successful
 if (!$conn) {

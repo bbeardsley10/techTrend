@@ -1,8 +1,13 @@
 <?php
+// Start session
 session_start();
+// Connect to database
 include 'db_connection.php';
 
-
+if ($conn->connect_error) {
+    die("Database connection failed: " . $conn->connect_error);
+}
+// Retrieves the totalPrice from previous file form
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
     $totalPrice = $_POST['totalPrice'];
     

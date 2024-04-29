@@ -4,6 +4,10 @@ include 'db_connection.php';
 // Start session
 session_start();
 
+
+if (!$conn) {
+    die("Failed to connect to the database");
+}
 ?>
 
 <html lang="en">
@@ -39,7 +43,7 @@ session_start();
                     </div>
                     
                     <div class="user-id user-data">
-                        <input type="text" name="Customer_Password" id="Customer_Password" required>
+                        <input type="password" name="Customer_Password" id="Customer_Password" required>
                         <label>Enter a Password</label>
                     </div>
                     <div class="user-id user-data">

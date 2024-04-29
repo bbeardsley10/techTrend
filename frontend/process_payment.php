@@ -4,6 +4,10 @@ session_start();
 // Include the database connection file
 include 'db_connection.php';
 
+if ($conn->connect_error) {
+    die("Database connection failed: " . $conn->connect_error);
+}
+
 // Ensure the user is logged in
 if (!isset($_SESSION['Customer_Username'])) {
     header("Location: login.php");
@@ -24,26 +28,25 @@ if ($result && $result->num_rows > 0) {
     $customer = mysqli_fetch_assoc($result);
     $customer_ID = $customer['Customer_ID']; 
 
-    // Check if the form is submitted
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         
         // Calculate the total price from the cart
-        $totalPrice = 0;
+        $totalPrice = 0; // Initialize total price
         if (isset($_SESSION["cart"]) && !empty($_SESSION["cart"])) {
             foreach ($_SESSION["cart"] as $productId => $product) {
-                $quantity = (int)($product["quantity"] ?? 0);
-                $totalPrice += (float)($product["price"] * $quantity); 
+                $quantity = (int)($product["quantity"] ?? 0); // Ensure quantity is valid
+                $price = (float)($product["price"]); // Ensure price is valid
+                $totalPrice += ($price * $quantity); // Calculate total price
             }
         } else {
             echo "Cart is empty, cannot process order.";
             exit();
         }
 
-      
         $paymentType = $_POST['paymentType'];
-        $paymentDate = $_POST['paymentDate'] ?? date("Y-m-d H:i:s"); 
+        $paymentDate = $_POST['paymentDate'] ?? date("Y-m-d H:i:s");
 
-        // Insert payment information into the payment table based on Customer_ID
+        // Insert payment information into the payment table
         if ($paymentType === "Credit/Debit Card") {
             $cardNumber = $_POST['cardNumber'];
             $expiryMonth = $_POST['expiryMonth'];
@@ -56,73 +59,71 @@ if ($result && $result->num_rows > 0) {
             $stmt->bind_param("dsssiii", $totalPrice, $paymentType, $paymentDate, $cardNumber, $expiryMonth, $expiryYear, $customer_ID);
         } elseif ($paymentType === "Gift Card") {
             $giftCardNumber = $_POST['giftCardNumber'];
-
-            $query = "INSERT INTO payment 
-                      (Payment_Amount, Payment_Type, Payment_Date, Card_Number, Customer_ID) 
-                      VALUES (?, ?, ?, ?, ?)";
-            $stmt = $conn->prepare($query);
             $stmt->bind_param("dsssi", $totalPrice, $paymentType, $paymentDate, $giftCardNumber, $customer_ID);
+        } else {
+            echo "Invalid payment type.";
+            exit();
         }
 
+        // Execute the payment insertion
         if ($stmt->execute()) {
             $paymentId = $conn->insert_id; // Get the generated Payment_ID
-
-            // Update the customer record with the new Payment_ID
-            $updateCustomerQuery = "UPDATE customer 
-                                    SET Payment_ID = ? 
-                                    WHERE Customer_ID = ?";
-            $stmt = $conn->prepare($updateCustomerQuery);
-            $stmt->bind_param("ii", $paymentId, $customer_ID);
+            $_SESSION['Payment_ID'] = $paymentId;
+            // Insert a single order into customer_order with the total price
+            $orderQuery = "INSERT INTO customer_order 
+                           (Order_Date, Order_Amount, Customer_ID) 
+                           VALUES (?, ?, ?)";
+            $stmt = $conn->prepare($orderQuery);
+            $stmt->bind_param("sdi", $paymentDate, $totalPrice, $customer_ID); // Use calculated total price
 
             if (!$stmt->execute()) {
-                echo "Error updating customer with Payment_ID: " . mysqli_error($conn);
+                echo "Error inserting customer order: " . $stmt->error;
                 exit();
             }
 
-            // Process customer orders if the cart is not empty
+            // Update product inventory after purchase
             foreach ($_SESSION["cart"] as $productId => $product) {
-                $quantity = (int)($product["quantity"] ?? 0);
-                $orderAmount = (float)($product["price"] * $quantity); 
-
-                // Insert into customer_order, with Customer_ID
-                $orderQuery = "INSERT INTO customer_order 
-                               (Order_Date, Order_Amount, Product_ID, Customer_ID) 
-                               VALUES (?, ?, ?, ?)";
-                $stmt = $conn->prepare($orderQuery);
-                $stmt->bind_param("sdii", $paymentDate, $orderAmount, $productId, $customer_ID);
-
-                if (!$stmt->execute()) {
-                    echo "Error inserting customer order: " . mysqli_error($conn);
-                    exit();
-                }
-
-                // Update product inventory
+                $quantity = (int)($product["quantity"] ?? 0); // Validate quantity
                 $updateProductQuery = "UPDATE product 
-                                       SET Product_Quantity = Product_Quantity - ? 
+                                       SET Product_Quantity = Product_Quantity - ?, 
+                                       Product_Status = CASE WHEN Product_Quantity - ? <= 0 
+                                                             THEN 'out of stock' 
+                                                             ELSE Product_Status 
+                                                         END
                                        WHERE Product_ID = ?";
                 $stmt = $conn->prepare($updateProductQuery);
-                $stmt->bind_param("ii", $quantity, $productId);
+                $stmt->bind_param("iii", $quantity, $quantity, $productId);
 
                 if (!$stmt->execute()) {
-                    echo "Error updating product inventory: " . mysqli_error($conn);
+                    echo "Error updating product inventory: " . $stmt->error;
                     exit();
                 }
             }
 
-            // Clear the cart after successful inventory update
+            // Clear the cart after a successful operation
             unset($_SESSION["cart"]);
-
+            $clearCartQuery = "TRUNCATE Table cart";
+            $clearCartStmt = $conn->prepare($clearCartQuery);
+            if ($clearCartStmt->execute()) {
+                // Redirect to the order confirmation page
+                header("Location: order_confirmation.php");
+                exit();
+            } else {
+                echo "Error clearing cart: " . $conn->error;
+                exit();
+            }
             // Redirect to the order confirmation page
             header("Location: order_confirmation.php");
             exit();
         } else {
-            echo "Error inserting payment information: " . mysqli_error($conn);
+            echo "Error inserting payment information: " . $stmt->error;
             exit();
         }
     } else {
         header("Location: payment.php");
-        exit(); // If form is not submitted, redirect to the payment page
+        exit(); // If the form is not submitted, redirect to the payment page
     }
 } else {
-    die("Error fetching customer information: " . mysqli_error($conn));
+    echo "Error fetching customer information: " . $stmt->error;
+    exit();
 }

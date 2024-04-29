@@ -5,14 +5,18 @@ include 'db_connection.php';
 // Start session
 session_start();
 
-// Check if product_id is provided via GET parameter
+if ($conn->connect_error) {
+    die("Database connection failed: " . $conn->connect_error);
+}
+
+// Check to see if product_id is provided 
 if (!isset($_GET['product_id']) || !is_numeric($_GET['product_id'])) {
     die("Invalid product ID."); // Error if product ID is not valid
 }
 
-$product_id = intval($_GET['product_id']); // Convert to integer for safety
+$product_id = intval($_GET['product_id']); // Converts the product ID to an integer to an integer
 
-// Fetch product information from the database
+// Fetch product information from the product table in the database
 $query = "SELECT * FROM product WHERE Product_ID = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("i", $product_id);
@@ -24,7 +28,7 @@ if ($result->num_rows === 0) {
     die("Product not found."); // Error if product not found
 }
 
-$product = $result->fetch_assoc(); // Retrieve the product information
+$product = $result->fetch_assoc(); // Retrieves the product information
 ?>
 
 <!DOCTYPE html>
@@ -40,10 +44,7 @@ $product = $result->fetch_assoc(); // Retrieve the product information
     </header>
     <main>
         <p>Price: $<?php echo htmlspecialchars($product['Product_Price']); ?></p>
-
-      
-        
-        <!-- Check if product is available -->
+        <!-- Checks to see if the product is in stock -->
         <?php if ($product['Product_Status'] === "in stock"): ?>
             <form action="add_to_cart.php" method="post">
                 <input type="hidden" name="Product_ID" value="<?php echo htmlspecialchars($product['Product_ID']); ?>">
@@ -59,7 +60,8 @@ $product = $result->fetch_assoc(); // Retrieve the product information
         <a href="cart.php">View Cart</a>
         </p>
         <p>
-        <a href="index.php">Back to Home</a> <!-- Link to go back to the main page -->
+            <!-- Link to go back to the main page -->
+        <a href="index.php">Back to Home</a> 
         </p>
     </footer>
 </body>

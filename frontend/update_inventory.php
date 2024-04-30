@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'edit' && isset($_POST['quantity'])) {
         // Update product quantity
         $quantity = (int) $_POST['quantity'];
-        $productStatus = $quantity > 1 ? 'in stock' : 'out of stock'; // Determine the status
+        $productStatus = $quantity > 0 ? 'in stock' : 'out of stock'; // Determine the status
     
         // Update quantity and status
         $query = "UPDATE product SET Product_Quantity = ?, Product_Status = ? WHERE Product_ID = ?";

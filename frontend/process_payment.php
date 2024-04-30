@@ -81,24 +81,7 @@ if ($result && $result->num_rows > 0) {
                 exit();
             }
 
-            // Update product inventory after purchase
-            foreach ($_SESSION["cart"] as $productId => $product) {
-                $quantity = (int)($product["quantity"] ?? 0); // Validate quantity
-                $updateProductQuery = "UPDATE product 
-                                       SET Product_Quantity = Product_Quantity - ?, 
-                                       Product_Status = CASE WHEN Product_Quantity - ? <= 0 
-                                                             THEN 'out of stock' 
-                                                             ELSE Product_Status 
-                                                         END
-                                       WHERE Product_ID = ?";
-                $stmt = $conn->prepare($updateProductQuery);
-                $stmt->bind_param("iii", $quantity, $quantity, $productId);
-
-                if (!$stmt->execute()) {
-                    echo "Error updating product inventory: " . $stmt->error;
-                    exit();
-                }
-            }
+           
 
             // Clear the cart after a successful operation
             unset($_SESSION["cart"]);

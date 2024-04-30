@@ -24,6 +24,7 @@ if ($result === false) {
     <meta charset="UTF-8">
     <title>TechTrend - Home</title>
     <link rel="icon" href="img/techTrendIcon.png" type="image/x-icon">
+    
 </head>
 <body>
     <header>

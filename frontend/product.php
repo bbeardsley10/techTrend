@@ -37,12 +37,22 @@ $product = $result->fetch_assoc(); // Retrieves the product information
     <meta charset="UTF-8">
     <title><?php echo htmlspecialchars($product['Product_Name']); ?></title>
     <link rel="icon" href="img/techTrendIcon.png" type="image/x-icon">
+    <link rel="stylesheet" href="product-style.css">
 </head>
+<style>
+    img {
+    width: 200px; 
+    height: 200px; 
+}
+</style>
 <body>
     <header>
         <h1><?php echo htmlspecialchars($product['Product_Name']); ?></h1>
     </header>
     <main>
+        <!-- Display product image -->
+        <img src="<?php echo htmlspecialchars($product['Product_Image']); ?>" alt="<?php echo htmlspecialchars($product['Product_Name']); ?>">
+
         <p>Price: $<?php echo htmlspecialchars($product['Product_Price']); ?></p>
         <!-- Checks to see if the product is in stock -->
         <?php if ($product['Product_Status'] === "in stock"): ?>

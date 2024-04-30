@@ -142,3 +142,9 @@ body{
     text-decoration: none;
     color: blue;
 }
+
+.box2 .alert-danger {
+    width: 250px;
+    font-size: 15px;
+    top: 55px;
+}

@@ -35,18 +35,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'edit' && isset($_POST['quantity'])) {
         // Update product quantity
         $quantity = (int) $_POST['quantity'];
-        $query = "UPDATE product SET Product_Quantity = ? WHERE Product_ID = ?";
+        $productStatus = $quantity > 1 ? 'in stock' : 'out of stock'; // Determine the status
+    
+        // Update quantity and status
+        $query = "UPDATE product SET Product_Quantity = ?, Product_Status = ? WHERE Product_ID = ?";
         $stmt = $conn->prepare($query);
-        $stmt->bind_param("ii", $quantity, $productId);
-        $stmt->execute();
-        $stmt->close();
+        if ($stmt) {
+            $stmt->bind_param("isi", $quantity, $productStatus, $productId); // Adjust bind params
+            $stmt->execute();
+            $stmt->close();
+        } else {
+            echo "Error preparing the query: " . $conn->error;
+        }
     } elseif ($action === 'delete') {
         // Delete the product
         $query = "DELETE FROM product WHERE Product_ID = ?";
         $stmt = $conn->prepare($query);
-        $stmt->bind_param("i", $productId);
-        $stmt->execute();
-        $stmt->close();
+        if ($stmt) {
+            $stmt->bind_param("i", $productId);
+            $stmt->execute();
+            $stmt->close();
+        } else {
+            echo "Error preparing the delete query: " . $conn->error;
+        }
     }
 }
 
